@@ -17,6 +17,7 @@ aiofiles = "^0.7.0"
 fastapi = "^0.70.0"
 typer = "^0.4.0"
 tenacity = "^8.0.1"
+better-exceptions = "^0.3.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

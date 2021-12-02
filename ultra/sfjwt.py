@@ -121,9 +121,9 @@ def load_credentials(
     :return: The Credential Model containing the loaded data.
     """
 
-    if not (username and consumer_id and environment) and json_credential_file is not None and pathlib.Path(json_credential_file).is_file():
+    if not (username and consumer_id and environment) and json_credential_file is not None and pathlib.Path(json_credential_file).expanduser().is_file():
         try:
-            with open(json_credential_file, "r") as json_cred_file:
+            with open(pathlib.Path(json_credential_file).expanduser(), "r") as json_cred_file:
                 return CredentialModel(**json.load(json_cred_file))
         except FileNotFoundError as e:
             print(
