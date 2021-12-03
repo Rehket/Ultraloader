@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ultraloader"
+name = "ultra"
 version = "0.1.0"
 description = ""
 authors = ["Rehket <aalbright425@gmail.com>"]
