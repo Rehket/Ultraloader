@@ -222,14 +222,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "mimesis"
-version = "5.1.0"
-description = "Mimesis: fake data generator."
-category = "main"
-optional = false
-python-versions = ">=3.8,<4.0"
-
-[[package]]
 name = "packaging"
 version = "21.2"
 description = "Core utilities for Python packages"
@@ -436,7 +428,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "b2b751c88be26ca065af8873e1ffd2aa6e9059fb73621446399fe07c83a97858"
+content-hash = "eb8934dbc5b8cebd3262a66e72d672d5b80a14aab19e53b3e4b3b92b243e7025"
 
 [metadata.files]
 aiofiles = [
@@ -581,10 +573,6 @@ idna = [
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
-]
-mimesis = [
-    {file = "mimesis-5.1.0-py3-none-any.whl", hash = "sha256:09df59b4ab81ddc4ebe56f7fd138a8892b51358c41359da7ea73125469fe0ec9"},
-    {file = "mimesis-5.1.0.tar.gz", hash = "sha256:9e2521652d8a91696391517a8010c1c6034cf44e9bc8179351c70919d3a2589b"},
 ]
 packaging = [
     {file = "packaging-21.2-py3-none-any.whl", hash = "sha256:14317396d1e8cdb122989b916fa2c7e9ca8e2be9e8060a6eff75b6b7b4d8a7e0"},
