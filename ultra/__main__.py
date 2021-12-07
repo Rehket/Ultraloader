@@ -5,7 +5,7 @@ import json
 from ultra.config import ULTRALOADER_CREDENTIAL_DIRECTORY, ULTRALOADER_CREDENTIAL_FILE_PATH
 from pathlib import Path
 
-import bulk2
+from ultra import bulk2
 
 app = typer.Typer()
 
