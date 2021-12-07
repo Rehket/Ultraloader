@@ -233,10 +233,12 @@ def get_job(
                 "Accept": "application/json",
             },
         )
-    query_path = f"services/data/v{version}/jobs/ingest/{job_id}"
     data = client.get(
-        f"{query_path}",
+        f"services/data/v{version}/jobs/query/{job_id}",
     )
+
+    if data.status_code == 404:
+        data = client.get(f"services/data/v{version}/jobs/ingest/{job_id}")
     if data.status_code != 200:
         print(data.content.decode(), file=stderr)
     return data.json()
@@ -379,3 +381,7 @@ def ingest_job_data_batches(
             client=client,
             credentials=credentials,
         )
+
+
+if __name__ == "__main__":
+    pass

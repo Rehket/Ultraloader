@@ -5,7 +5,7 @@ description = ""
 authors = ["Rehket <aalbright425@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.6"
 httpx = "^0.20.0"
 pydantic = "^1.8.2"
 PyJWT = {extras = ["crypto"], version = "^2.3.0"}
