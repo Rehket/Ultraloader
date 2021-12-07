@@ -8,7 +8,7 @@ import sys
 import pathlib
 from typing import Optional
 from os import environ
-import config
+from ultra import config
 
 
 class CredentialModel(BaseModel):

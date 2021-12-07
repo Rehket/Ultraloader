@@ -20,8 +20,8 @@ from tenacity import (
     retry_if_exception_type,
 )
 from urllib.parse import urlparse
-from sfjwt import CredentialModel, load_credentials
-from file_operations import combine_files
+from ultra.sfjwt import CredentialModel, load_credentials
+from ultra.file_operations import combine_files
 
 from tempfile import gettempdir
 import shutil

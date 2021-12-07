@@ -2,7 +2,7 @@ from sfjwt import jwt_login, load_credentials, CredentialModel
 import typer
 import sys
 import json
-from config import ULTRALOADER_CREDENTIAL_DIRECTORY, ULTRALOADER_CREDENTIAL_FILE_PATH
+from ultra.config import ULTRALOADER_CREDENTIAL_DIRECTORY, ULTRALOADER_CREDENTIAL_FILE_PATH
 from pathlib import Path
 
 import bulk2
