@@ -1,4 +1,4 @@
-from sfjwt import jwt_login, load_credentials, CredentialModel
+from ultra.sfjwt import jwt_login, load_credentials, CredentialModel
 import typer
 import sys
 import json
