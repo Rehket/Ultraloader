@@ -34,6 +34,7 @@ for i in range(0, 900000):
         'Company': company.company(),
         'Street': addr.address(),
         'City': addr.city(),
+        'State': addr.state(abbr=True),
         'PostalCode': addr.zip_code(),
         'Phone': person.telephone(mask='###-###-###')
 
@@ -43,7 +44,7 @@ for i in range(0, 900000):
 
 print(data[0:1])
 
-with open("LeadsOut.csv", "w", newline='') as leads_out:
+with open("data/LeadsOut.csv", "w", newline='') as leads_out:
     writer = DictWriter(leads_out, list(data[0].keys()), lineterminator='\n')
     writer.writeheader()
     writer.writerows(data)
