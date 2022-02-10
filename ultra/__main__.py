@@ -2,7 +2,10 @@ from ultra.sfjwt import jwt_login, load_credentials, CredentialModel
 import typer
 import sys
 import json
-from ultra.config import ULTRALOADER_CREDENTIAL_DIRECTORY, ULTRALOADER_CREDENTIAL_FILE_PATH
+from ultra.config import (
+    ULTRALOADER_CREDENTIAL_DIRECTORY,
+    ULTRALOADER_CREDENTIAL_FILE_PATH,
+)
 from pathlib import Path
 
 from ultra import bulk2
@@ -125,8 +128,6 @@ def get_job(
 ):
 
     print(json.dumps(obj=bulk2.get_job(job_id=job_id, version=version), indent=2))
-
-
 
 
 if __name__ == "__main__":

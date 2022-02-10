@@ -40,6 +40,15 @@ class Batch(BaseModel):
     batch_size: int
     api_version: str
     object: str
+    download_path: str = "./data"
+    status: str = "NEW"
+    message: Optional[str] = None
+    downloaded_file_path: Optional[str]
+
+
+class CompletedJob(BaseModel):
+    id: str
+    batches: List[Batch]
 
 
 def get_query_job(
@@ -132,7 +141,6 @@ def get_query_data(
 
 async def a_get_query_data(
     batch: Batch,
-    data_directory: str = "./data",
     async_client: httpx.AsyncClient = None,
     credentials: CredentialModel = None,
 ):
@@ -167,32 +175,46 @@ async def a_get_query_data(
                         ).decode(),
                     },
                 )
-    except RetryError:
-        print("Error occurred while downloading job data")
+    except RetryError as e:
+        batch.status = "FAILED"
+        batch.message = f"Error occurred while downloading job data: {str(e)}"
+        return batch
     finally:
         await async_client.aclose()
     if data.status_code != 200 and data.status_code != 201:
-        print(data.content.decode(), file=stderr)
+        # print(data.content.decode(), file=stderr)
+        batch.status = "FAILED"
+        batch.message = (
+            f"Error occurred while downloading job data: {data.content.decode()}"
+        )
+        return batch
 
-    salesforce_domain_path = urlparse(url=batch.base_path).netloc.split(".")[0]
-    data_directory = Path(data_directory, salesforce_domain_path)
+    data_directory = Path(batch.download_path)
     data_directory.mkdir(exist_ok=True)
     file_path = Path(data_directory, f"{batch.job_id}_{batch.batch_start:012d}.csv")
 
     async with aiofiles.open(file_path, mode="w") as file_out:
         await file_out.write(data.content.decode())
 
-    return batch.json(indent=2)
+    batch.status = "COMPLETE"
+    batch.message = f"{file_path} download complete"
+    batch.downloaded_file_path = file_path
+
+    return batch
 
 
-async def pull_batches(lots: List[Batch]):
+async def pull_batches(lots: List[Batch]) -> List[Batch]:
+    batches: List[Batch] = []
 
     async with Pool() as pool:
         async for result in pool.map(a_get_query_data, lots):
-            print(result)
+            batches.append(result)
+    return batches
 
 
-def download_query_data(job_id: str, version: str = "53.0"):
+def download_query_data(
+    job_id: str, version: str = "53.0", download_path: str = "./data"
+):
     job_data = get_query_job(job_id=job_id, version=version)
     record_count = job_data.get("numberRecordsProcessed")
     credentials = load_credentials()
@@ -210,11 +232,14 @@ def download_query_data(job_id: str, version: str = "53.0"):
             api_version=version,
             base_path=credentials.instance_url,
             object=job_data.get("object"),
+            path=download_path,
         )
         for i in range(0, job_data.get("numberRecordsProcessed"), batches_size)
     ]
 
-    asyncio.run(pull_batches(lots=lots))
+    return CompletedJob(id=job_id, batches=asyncio.run(pull_batches(lots=lots))).json(
+        indent=2
+    )
 
 
 def get_job(

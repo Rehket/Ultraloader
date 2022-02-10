@@ -26,7 +26,7 @@ if __name__ == "__main__":
     if response.status_code != 200:
         print(response.text)
 
-    print(response.json().keys())
+
     print(response.json().get("fields")[0].keys())
     print([field for field in response.json().get("fields") if field.get("updateable") is True])
 
