@@ -40,6 +40,7 @@ class Batch(BaseModel):
     batch_size: int
     api_version: str
     object: str
+    file_name: Optional[str]
     download_path: str = "./data"
     status: str = "NEW"
     message: Optional[str] = None
@@ -199,6 +200,7 @@ async def a_get_query_data(
     batch.status = "COMPLETE"
     batch.message = f"{file_path} download complete"
     batch.downloaded_file_path = file_path
+    batch.file_name = f"{batch.job_id}_{batch.batch_start:012d}.csv"
 
     return batch
 
