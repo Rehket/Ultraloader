@@ -232,7 +232,7 @@ def download_query_data(
             api_version=version,
             base_path=credentials.instance_url,
             object=job_data.get("object"),
-            path=download_path,
+            download_path=download_path,
         )
         for i in range(0, job_data.get("numberRecordsProcessed"), batches_size)
     ]
