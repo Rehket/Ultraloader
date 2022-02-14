@@ -221,7 +221,10 @@ async def pull_batches(lots: List[Batch]) -> List[Batch]:
 
 
 def download_query_data(
-    job_id: str, version: str = "53.0", download_path: str = "./data", batch_size: int = 10000
+    job_id: str,
+    version: str = "53.0",
+    download_path: str = "./data",
+    batch_size: int = 10000,
 ):
     job_data = get_query_job(job_id=job_id, version=version)
     record_count = job_data.get("numberRecordsProcessed")
@@ -342,21 +345,27 @@ def load_ingest_job_data(
     with open(file_path, "r") as file_in:
         data = client.put(f"{query_path}/batches", content=file_in.read(), timeout=None)
         if data.status_code != 200 and data.status_code != 201:
-            print(data.content.decode(), file=stderr)
+            message = data.content.decode()
 
-    print(data.content.decode())
-    print(f"Batch: {file_path} loaded.")
+        else:
+            message = f"Batch: {file_path} loaded."
+
     client.headers.update({"Content-Type": "application/json"})
     payload = {
         "state": "UploadComplete" if data.status_code in (200, 201) else "Aborted"
     }
-    print(payload)
+
     result = client.patch(
         f"{query_path}",
         json=payload,
         timeout=None,
     )
-    return result.json()
+    payload["id"] = job_id
+    payload["url"] = f"{query_path}"
+    payload["file_path"] = file_path
+    payload["message"] = message
+    payload["status_code"] = result.status_code
+    return payload
 
 
 def ingest_job_data_batches(
