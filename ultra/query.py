@@ -63,6 +63,7 @@ def run(
     """
     Creates a query job and polls until the job is complete before downloading the data.
     """
+
     query_job = bulk2.create_query_job(query=query, version=version)
     job_id = query_job.get("id")
     job_status = query_job.get("state")

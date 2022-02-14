@@ -92,6 +92,9 @@ def create_query_job(
                 "Authorization": f"Bearer {credentials.token}",
                 "Accept": "application/json",
             },
+            timeout=httpx.Timeout(
+                credentials.client_timeout, connect=credentials.client_connect_timeout
+            ),
         )
 
     query_path = f"services/data/v{version}/jobs/query"
@@ -154,6 +157,9 @@ async def a_get_query_data(
                 "Authorization": f"Bearer {credentials.token}",
                 "Accept": "application/json",
             },
+            timeout=httpx.Timeout(
+                credentials.client_timeout, connect=credentials.client_connect_timeout
+            ),
         )
 
     query_path = (
@@ -259,6 +265,9 @@ def get_job(
                 "Authorization": f"Bearer {credentials.token}",
                 "Accept": "application/json",
             },
+            timeout=httpx.Timeout(
+                credentials.client_timeout, connect=credentials.client_connect_timeout
+            ),
         )
     data = client.get(
         f"services/data/v{version}/jobs/query/{job_id}",

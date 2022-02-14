@@ -18,6 +18,8 @@ class CredentialModel(BaseModel):
     environment: str
     instance_url: Optional[str]
     token: Optional[str]
+    client_timeout: int = 10
+    client_connect_timeout: int = 60
 
 
 def _load_private_key(path_or_buffer: Optional[str] = None) -> str:
