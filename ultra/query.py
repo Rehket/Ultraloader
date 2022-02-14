@@ -34,11 +34,18 @@ def download_data(
         "53.0",
         help="The API version to use when creating the job.",
     ),
+    batch_size: int = typer.Option(
+        10000,
+        help="The number of records to pull in a batch.",
+    ),
 ):
 
     print(
         bulk2.download_query_data(
-            job_id=job_id, version=version, download_path=download_path
+            job_id=job_id,
+            version=version,
+            download_path=download_path,
+            batch_size=batch_size,
         ),
         file=sys.stdout,
     )

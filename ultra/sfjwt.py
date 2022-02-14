@@ -19,6 +19,7 @@ class CredentialModel(BaseModel):
     instance_url: Optional[str]
     token: Optional[str]
     client_timeout: int = 10
+    download_timeout: int = 60
     client_connect_timeout: int = 60
 
 

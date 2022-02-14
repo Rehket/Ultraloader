@@ -158,7 +158,7 @@ async def a_get_query_data(
                 "Accept": "application/json",
             },
             timeout=httpx.Timeout(
-                credentials.client_timeout, connect=credentials.client_connect_timeout
+                credentials.download_timeout, connect=credentials.client_connect_timeout
             ),
         )
 
@@ -170,7 +170,7 @@ async def a_get_query_data(
         async for attempt in AsyncRetrying(
             retry=retry_if_exception_type(httpx.ReadTimeout),
             stop=stop_after_attempt(10),
-            wait=wait_exponential(multiplier=1, min=4, max=10),
+            wait=wait_exponential(multiplier=1, min=4, max=60),
         ):
             with attempt:
                 data = await async_client.get(
@@ -184,7 +184,7 @@ async def a_get_query_data(
                 )
     except RetryError as e:
         batch.status = "FAILED"
-        batch.message = f"Error occurred while downloading job data: {str(e)}"
+        batch.message = f"Error occurred while downloading job data after : {str(e)}"
         return batch
     finally:
         await async_client.aclose()
@@ -221,7 +221,7 @@ async def pull_batches(lots: List[Batch]) -> List[Batch]:
 
 
 def download_query_data(
-    job_id: str, version: str = "53.0", download_path: str = "./data"
+    job_id: str, version: str = "53.0", download_path: str = "./data", batch_size: int = 10000
 ):
     job_data = get_query_job(job_id=job_id, version=version)
     record_count = job_data.get("numberRecordsProcessed")
@@ -230,19 +230,20 @@ def download_query_data(
         print("Record Count is 0, No results to process", file=stderr)
         exit()
 
-    batches_size = ceil(job_data.get("numberRecordsProcessed") / cpu_count())
+    if batch_size is None or batch_size == 0:
+        batch_size = ceil(job_data.get("numberRecordsProcessed") / cpu_count())
 
     lots = [
         Batch(
             batch_start=i,
-            batch_size=batches_size,
+            batch_size=batch_size,
             job_id=job_id,
             api_version=version,
             base_path=credentials.instance_url,
             object=job_data.get("object"),
             download_path=download_path,
         )
-        for i in range(0, job_data.get("numberRecordsProcessed"), batches_size)
+        for i in range(0, job_data.get("numberRecordsProcessed"), batch_size)
     ]
 
     return CompletedJob(id=job_id, batches=asyncio.run(pull_batches(lots=lots))).json(
