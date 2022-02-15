@@ -149,7 +149,7 @@ async def a_get_query_data(
     batch: Batch,
     async_client: httpx.AsyncClient = None,
     credentials: CredentialModel = None,
-    max_attempts: int = os.getenv("SFDC_MAX_DOWNLOAD_ATTEMPTS", 20)
+    max_attempts: int = int(os.getenv("SFDC_MAX_DOWNLOAD_ATTEMPTS", 20))
 ):
     if credentials is None:
         credentials = load_credentials()
