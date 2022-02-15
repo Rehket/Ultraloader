@@ -1,3 +1,4 @@
+import os
 import sys
 
 import httpx
@@ -148,6 +149,7 @@ async def a_get_query_data(
     batch: Batch,
     async_client: httpx.AsyncClient = None,
     credentials: CredentialModel = None,
+    max_attempts: int = os.getenv("SFDC_MAX_DOWNLOAD_ATTEMPTS", 20)
 ):
     if credentials is None:
         credentials = load_credentials()
@@ -170,7 +172,7 @@ async def a_get_query_data(
     try:
         async for attempt in AsyncRetrying(
             retry=retry_if_exception_type(httpx.ReadTimeout),
-            stop=stop_after_attempt(10),
+            stop=stop_after_attempt(20),
             wait=wait_exponential(multiplier=1, min=4, max=60),
         ):
             with attempt:
