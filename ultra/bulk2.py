@@ -19,7 +19,7 @@ from tenacity import (
     wait_exponential,
     retry_if_exception_type,
 )
-from urllib.parse import urlparse
+
 from ultra.sfjwt import CredentialModel, load_credentials
 from ultra.file_operations import combine_files
 
@@ -45,6 +45,7 @@ class Batch(BaseModel):
     status: str = "NEW"
     message: Optional[str] = None
     downloaded_file_path: Optional[str]
+    attempt_count: int = 0
 
 
 class CompletedJob(BaseModel):
@@ -173,6 +174,7 @@ async def a_get_query_data(
             wait=wait_exponential(multiplier=1, min=4, max=60),
         ):
             with attempt:
+                batch.attempt_count = attempt.retry_state.attempt_number
                 data = await async_client.get(
                     f"{query_path}",
                     params={
