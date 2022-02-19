@@ -12,13 +12,22 @@ query_app = typer.Typer()
 @query_app.command()
 def create_job(
     query: str,
+    operation: str = typer.Option(
+        "query",
+        help="Use basic query or queryAll which includes deleted and merged records.",
+    ),
     version: str = typer.Option(
         "53.0",
         help="The API version to use when creating the job.",
     ),
 ):
     print(
-        json.dumps(obj=bulk2.create_query_job(query=query, version=version), indent=2),
+        json.dumps(
+            obj=bulk2.create_query_job(
+                query=query, version=version, operation=operation
+            ),
+            indent=2,
+        ),
         file=stdout,
     )
 

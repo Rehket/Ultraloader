@@ -82,6 +82,7 @@ def get_query_job(
 def create_query_job(
     query: str,
     version: str,
+    operation: str = "query",
     client: httpx.Client = None,
     credentials: CredentialModel = None,
 ):
@@ -101,7 +102,7 @@ def create_query_job(
 
     query_path = f"services/data/v{version}/jobs/query"
 
-    body = {"operation": "query", "query": query}
+    body = {"operation": operation, "query": query}
 
     data = client.post(
         f"{query_path}",
