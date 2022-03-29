@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ultra"
-version = "0.2.11"
+version = "0.2.13"
 description = ""
 authors = ["Rehket <aalbright425@gmail.com>"]
 
@@ -17,7 +17,6 @@ fastapi = "^0.70.0"
 typer = "^0.4.0"
 tenacity = "^8.0.1"
 better-exceptions = "^0.3.3"
-click = "8.0.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
