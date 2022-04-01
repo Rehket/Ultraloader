@@ -56,6 +56,10 @@ def download_data(
         10000,
         help="The number of records to pull in a batch.",
     ),
+    download_dry_run: bool = typer.Option(
+        False,
+        help="Should the download be simulated rather than downloaded.",
+    ),
 ):
 
     print(
@@ -64,6 +68,7 @@ def download_data(
             version=version,
             download_path=download_path,
             batch_size=batch_size,
+            dry_run=download_dry_run
         ),
         file=sys.stdout,
     )
@@ -75,6 +80,10 @@ def run(
     version: str = typer.Option(
         "53.0",
         help="The API version to use when creating the job.",
+    ),
+    batch_size: int = typer.Option(
+        10000,
+        help="The number of records to pull in a batch.",
     ),
     check_interval: int = typer.Option(
         5,
@@ -88,7 +97,7 @@ def run(
         "query",
         callback=query_option_callback,
         help="The query operation to perform: query or queryAll",
-    ),
+    )
 ):
     """
     Creates a query job and polls until the job is complete before downloading the data.
@@ -104,7 +113,7 @@ def run(
 
     print(
         bulk2.download_query_data(
-            job_id=job_id, version=version, download_path=download_path
+            job_id=job_id, version=version, download_path=download_path, batch_size=batch_size
         ),
         file=sys.stdout,
     )
