@@ -9,6 +9,15 @@ from time import sleep
 query_app = typer.Typer()
 
 
+def query_option_callback(value: str):
+    if value.lower() == "query":
+        return "query"
+    elif value.lower() == "queryall":
+        return "queryAll"
+    else:
+        raise typer.BadParameter("Only query or queryAll is allowed for query operations")
+
+
 @query_app.command()
 def create_job(
     query: str,
@@ -75,12 +84,17 @@ def run(
         "./data",
         help="The path to download the files to, defaults './data' in the current working directory.",
     ),
+    operation: str = typer.Option(
+        "query",
+        callback=query_option_callback,
+        help="The query operation to perform: query or queryAll",
+    ),
 ):
     """
     Creates a query job and polls until the job is complete before downloading the data.
     """
 
-    query_job = bulk2.create_query_job(query=query, version=version)
+    query_job = bulk2.create_query_job(query=query, version=version, operation=operation)
     job_id = query_job.get("id")
     job_status = query_job.get("state")
     while job_status in ["UploadComplete", "InProgress"]:

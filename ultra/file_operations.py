@@ -45,6 +45,7 @@ def combine_file_in_buffers(
                 output_buffer.write(bytes(line, "utf-8").decode("utf-8", "ignore"))
                 if output_buffer.tell() > file_size_limit:
                     output_buffer.seek(0)
+                    # yield out the file chunk.
                     yield output_buffer
                     output_buffer.seek(0)
                     output_buffer.truncate(0)
