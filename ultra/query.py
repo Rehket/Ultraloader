@@ -15,7 +15,9 @@ def query_option_callback(value: str):
     elif value.lower() == "queryall":
         return "queryAll"
     else:
-        raise typer.BadParameter("Only query or queryAll is allowed for query operations")
+        raise typer.BadParameter(
+            "Only query or queryAll is allowed for query operations"
+        )
 
 
 @query_app.command()
@@ -68,7 +70,7 @@ def download_data(
             version=version,
             download_path=download_path,
             batch_size=batch_size,
-            dry_run=download_dry_run
+            dry_run=download_dry_run,
         ),
         file=sys.stdout,
     )
@@ -97,13 +99,15 @@ def run(
         "query",
         callback=query_option_callback,
         help="The query operation to perform: query or queryAll",
-    )
+    ),
 ):
     """
     Creates a query job and polls until the job is complete before downloading the data.
     """
 
-    query_job = bulk2.create_query_job(query=query, version=version, operation=operation)
+    query_job = bulk2.create_query_job(
+        query=query, version=version, operation=operation
+    )
     job_id = query_job.get("id")
     job_status = query_job.get("state")
     while job_status in ["UploadComplete", "InProgress"]:
@@ -113,7 +117,10 @@ def run(
 
     print(
         bulk2.download_query_data(
-            job_id=job_id, version=version, download_path=download_path, batch_size=batch_size
+            job_id=job_id,
+            version=version,
+            download_path=download_path,
+            batch_size=batch_size,
         ),
         file=sys.stdout,
     )
