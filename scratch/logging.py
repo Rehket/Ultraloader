@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.10
 from ultra.sfjwt import jwt_login, load_credentials, CredentialModel
 import typer
 import httpx
@@ -34,7 +35,7 @@ def upsert_simple_job(
 
 @app.command()
 def start_simple_job_run(
-    job_id: str,
+
     job_name: str,
     user: str = None,
     token: str = os.getenv("SFDC_BEARER_TOKEN"),
@@ -43,7 +44,7 @@ def start_simple_job_run(
 ) -> dict:
     try:
         response = httpx.patch(
-            f"{instance_url}/services/data/v{sfdc_api_version}/sobjects/Simple_Job_Run__c/Job_Run_Id__c/{job_id}",
+            f"{instance_url}/services/data/v{sfdc_api_version}/sobjects/Simple_Job_Run__c/Job_Run_Id__c/",
             headers={
                 "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json",
