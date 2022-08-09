@@ -21,9 +21,9 @@ app.add_typer(ingest_app, name="ingest")
 
 @app.command()
 def login(
-    username: str,
-    consumer_id: str,
-    environment: str,
+    username: str = None,
+    client_id: str = None,
+    environment: str = None,
     private_key: str = typer.Option(
         None,
         help="The path to the private key file. If None, the environment variable will be checked instead.",
@@ -62,10 +62,18 @@ def login(
         saved to the .sofa directory.
 
     """
+
+    credentials = SalesforceCred(
+        username=username,
+        client_id=client_id,
+        private_key=private_key,
+        environment=environment,
+    )
+
     try:
         credentials = load_credentials(
             username=username,
-            consumer_id=consumer_id,
+            consumer_id=client_id,
             private_key=private_key,
             environment=environment,
             json_credential_file=json_credential_file,

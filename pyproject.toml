@@ -5,7 +5,7 @@ description = ""
 authors = ["Rehket <aalbright425@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.6.2"
+python = "^3.7.2"
 httpx = "^0.21.0"
 pydantic = "^1.8.2"
 PyJWT = {extras = ["crypto"], version = "^2.3.0"}
@@ -22,6 +22,7 @@ better-exceptions = "^0.3.3"
 pytest = "^6.2.5"
 black = "^21.12b0"
 respx = "^0.19.2"
+pytest-mock = "^3.8.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

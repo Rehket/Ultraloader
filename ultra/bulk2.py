@@ -337,7 +337,7 @@ def load_ingest_job_data(
     version: str,
     client: httpx.Client = None,
     credentials: CredentialModel = None,
-):
+) -> Batch:
 
     if credentials is None:
         credentials = load_credentials()
@@ -418,6 +418,8 @@ def ingest_job_data_batches(
     if file_task.status != "success":
         raise RuntimeError(f"Combining files failed: {file_task.message}")
 
+    ingest_job_results = []
+
     for file_path in file_task.payload:
 
         bulk_job = create_ingest_job(
@@ -429,13 +431,16 @@ def ingest_job_data_batches(
             credentials=credentials,
         )
 
-        load_ingest_job_data(
-            job_id=bulk_job.get("id"),
-            file_path=file_path,
-            version=version,
-            client=client,
-            credentials=credentials,
+        ingest_job_results.append(
+            load_ingest_job_data(
+                job_id=bulk_job.get("id"),
+                file_path=file_path,
+                version=version,
+                client=client,
+                credentials=credentials,
+            )
         )
+    return ingest_job_results
 
 
 if __name__ == "__main__":
