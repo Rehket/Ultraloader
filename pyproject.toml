@@ -3,6 +3,7 @@ name = "ultra"
 version = "0.2.14"
 description = ""
 authors = ["Rehket <aalbright425@gmail.com>"]
+license = "LGPL-3.0-or-later"
 
 [tool.poetry.dependencies]
 python = "^3.7.2"

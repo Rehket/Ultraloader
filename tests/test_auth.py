@@ -92,3 +92,23 @@ class TestSalesForceAuth:
             assert (
                 test_fernet.decrypt(token=fernet.encrypt(b"some Data")) == b"some Data"
             )
+
+    def test_load_credential_file_on_connect(self, get_temp_home, get_sfdc_test_credential):
+        """
+        Verify an encrypted credential file is created when user tries to connect to SFD if the file does not exist.
+        :param get_temp_home: Fixture to mock the home directory.
+        :param get_sfdc_test_credential: Get the test credential
+        :return:
+        """
+
+        # Generate the Secret Key
+
+        # Check for cred file
+
+        # If no cred file exists, try to auth SFDC.
+
+        # Create cred file with encrypted details since it does not exist.
+
+        # Verify encrypted credential details. 
+
+        assert False
