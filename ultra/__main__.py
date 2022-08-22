@@ -63,7 +63,6 @@ def login(
 
     """
 
-
     try:
         credentials = load_credentials(
             username=username,
