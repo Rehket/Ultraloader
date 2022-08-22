@@ -38,13 +38,13 @@ def login(
     ),
 ):
     """
-    Get a bearer token for the provided provided credentials. The credentials will be saved in
-    the user directory under the .sofa
+    Get a bearer token for the provided credentials. The credentials will be saved in
+    the user directory under the .ultra
 
     :param username: The username of the user you wish to authenticate as, it should be in the
         format of an email. Ex: fooBar@gmail.com
 
-    :param consumer_id: The consumer_id is the client_id of the app you are using to connect with SalesForce.
+    :param client_id: The consumer_id is the client_id of the app you are using to connect with SalesForce.
         The consumer key is like the username for the connected app.
 
     :param private_key: The path to the private key. The private_key is the private certificate used to sign the
@@ -63,12 +63,6 @@ def login(
 
     """
 
-    credentials = SalesforceCred(
-        username=username,
-        client_id=client_id,
-        private_key=private_key,
-        environment=environment,
-    )
 
     try:
         credentials = load_credentials(
@@ -90,7 +84,7 @@ def login(
         )
         credential = CredentialModel(
             username=username,
-            consumer_id=consumer_id,
+            consumer_id=client_id,
             environment=environment,
             instance_url=instance_url,
             token=token,
@@ -134,7 +128,14 @@ def get_job(
         help="The API version to use when creating the job.",
     ),
 ):
+    """
+    Get the job details from SalesForce. Prints the output as formatted json.
 
+    :param job_id: The SalesForce Job Id.
+
+    :param version: The API version to use. Defaults to 53.0
+
+    """
     print(json.dumps(obj=bulk2.get_job(job_id=job_id, version=version), indent=2))
 
 

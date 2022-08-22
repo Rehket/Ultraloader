@@ -12,7 +12,6 @@ from ultra import config
 from ultra.exceptions import SalesForceAuthException, SalesForceUserException
 from cryptography.fernet import Fernet
 import os
-import stat
 import ctypes
 
 
@@ -28,7 +27,7 @@ class SalesforceCred(BaseSettings):
     api_version: str
     client_timeout: int = 10
     client_connect_timeout: int = 60
-    credential_file_path: str = pathlib.Path(pathlib.Path().home(), ".ultra/")
+    credential_file_path: str = str(pathlib.Path(pathlib.Path().home(), ".ultra/"))
 
     class Config:
         env_prefix = "sfdc_"
