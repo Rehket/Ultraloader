@@ -119,6 +119,7 @@ def login(
         print(f"Credentials Saved! You're all set.", file=sys.stdout)
 
 
+# noinspection GrazieInspection
 @app.command()
 def get_job(
     job_id: str,
