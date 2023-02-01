@@ -150,7 +150,7 @@ async def a_get_query_data(
     batch: Batch,
     async_client: httpx.AsyncClient = None,
     credentials: CredentialModel = None,
-    max_attempts: int = int(os.getenv("SFDC_MAX_DOWNLOAD_ATTEMPTS", 20))
+    max_attempts: int = int(os.getenv("SFDC_MAX_DOWNLOAD_ATTEMPTS", 20)),
 ):
     if credentials is None:
         credentials = load_credentials()
@@ -230,6 +230,7 @@ def download_query_data(
     version: str = "53.0",
     download_path: str = "./data",
     batch_size: int = 10000,
+    dry_run: bool = False,
 ):
     job_data = get_query_job(job_id=job_id, version=version)
     record_count = job_data.get("numberRecordsProcessed")
@@ -253,6 +254,9 @@ def download_query_data(
         )
         for i in range(0, job_data.get("numberRecordsProcessed"), batch_size)
     ]
+
+    if dry_run:
+        return CompletedJob(id=job_id, batches=lots).json(indent=2)
 
     return CompletedJob(id=job_id, batches=asyncio.run(pull_batches(lots=lots))).json(
         indent=2
@@ -333,7 +337,7 @@ def load_ingest_job_data(
     version: str,
     client: httpx.Client = None,
     credentials: CredentialModel = None,
-):
+) -> Batch:
 
     if credentials is None:
         credentials = load_credentials()
@@ -414,6 +418,8 @@ def ingest_job_data_batches(
     if file_task.status != "success":
         raise RuntimeError(f"Combining files failed: {file_task.message}")
 
+    ingest_job_results = []
+
     for file_path in file_task.payload:
 
         bulk_job = create_ingest_job(
@@ -425,13 +431,16 @@ def ingest_job_data_batches(
             credentials=credentials,
         )
 
-        load_ingest_job_data(
-            job_id=bulk_job.get("id"),
-            file_path=file_path,
-            version=version,
-            client=client,
-            credentials=credentials,
+        ingest_job_results.append(
+            load_ingest_job_data(
+                job_id=bulk_job.get("id"),
+                file_path=file_path,
+                version=version,
+                client=client,
+                credentials=credentials,
+            )
         )
+    return ingest_job_results
 
 
 if __name__ == "__main__":

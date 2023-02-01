@@ -70,11 +70,6 @@ def load(
 def load_ingest_job_data(
     job_id: str,
     file_path: str,
-    # pattern: str,
-    # batch_size: int = typer.Option(
-    #     90000000,
-    #     help="The API version to use when creating the job.",
-    # ),
     version: str = typer.Option(
         "53.0",
         help="The API version to use when creating the job.",

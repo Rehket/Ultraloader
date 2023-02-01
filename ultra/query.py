@@ -9,6 +9,17 @@ from time import sleep
 query_app = typer.Typer()
 
 
+def query_option_callback(value: str):
+    if value.lower() == "query":
+        return "query"
+    elif value.lower() == "queryall":
+        return "queryAll"
+    else:
+        raise typer.BadParameter(
+            "Only query or queryAll is allowed for query operations"
+        )
+
+
 @query_app.command()
 def create_job(
     query: str,
@@ -47,6 +58,10 @@ def download_data(
         10000,
         help="The number of records to pull in a batch.",
     ),
+    download_dry_run: bool = typer.Option(
+        False,
+        help="Should the download be simulated rather than downloaded.",
+    ),
 ):
 
     print(
@@ -55,6 +70,7 @@ def download_data(
             version=version,
             download_path=download_path,
             batch_size=batch_size,
+            dry_run=download_dry_run,
         ),
         file=sys.stdout,
     )
@@ -67,6 +83,10 @@ def run(
         "53.0",
         help="The API version to use when creating the job.",
     ),
+    batch_size: int = typer.Option(
+        10000,
+        help="The number of records to pull in a batch.",
+    ),
     check_interval: int = typer.Option(
         5,
         help="How long to wait between job status checks",
@@ -75,12 +95,19 @@ def run(
         "./data",
         help="The path to download the files to, defaults './data' in the current working directory.",
     ),
+    operation: str = typer.Option(
+        "query",
+        callback=query_option_callback,
+        help="The query operation to perform: query or queryAll",
+    ),
 ):
     """
     Creates a query job and polls until the job is complete before downloading the data.
     """
 
-    query_job = bulk2.create_query_job(query=query, version=version)
+    query_job = bulk2.create_query_job(
+        query=query, version=version, operation=operation
+    )
     job_id = query_job.get("id")
     job_status = query_job.get("state")
     while job_status in ["UploadComplete", "InProgress"]:
@@ -90,7 +117,10 @@ def run(
 
     print(
         bulk2.download_query_data(
-            job_id=job_id, version=version, download_path=download_path
+            job_id=job_id,
+            version=version,
+            download_path=download_path,
+            batch_size=batch_size,
         ),
         file=sys.stdout,
     )
