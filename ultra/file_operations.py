@@ -11,7 +11,6 @@ class TaskResult(BaseModel):
 
 
 def get_target_files(path_or_file: str, pattern: str) -> List[str]:
-
     path = Path(path_or_file).expanduser()
     if path.exists() and path.is_file():
         return [str(path)]
@@ -32,12 +31,11 @@ def get_target_files(path_or_file: str, pattern: str) -> List[str]:
 def combine_file_in_buffers(
     files: List[str], file_size_limit: int = 90000000, output_buffer: io.StringIO = None
 ) -> io.StringIO:
-
     if output_buffer is None:
         output_buffer = io.StringIO()
 
     for file_path in files:
-        with open(file_path, newline="") as input_csv:
+        with open(file_path, newline="", errors="ignore") as input_csv:
             header = input_csv.readline()
             for line in input_csv:
                 if output_buffer.tell() == 0:
