@@ -108,7 +108,7 @@ def create_query_job(
         f"{query_path}",
         json=body,
     )
-    if data.status_code != 200 and data.status_code != 201:
+    if data.status_code not in [200, 201]:
         print(data.content.decode(), file=stderr)
     return data.json()
 
@@ -140,7 +140,7 @@ def get_query_data(
             "locator": base64.b64encode(str(locator).encode()).decode(),
         },
     )
-    if data.status_code != 200 and data.status_code != 201:
+    if data.status_code not in [200, 201]:
         print(data.content.decode(), file=stderr)
 
     return data.content.decode()
@@ -193,7 +193,7 @@ async def a_get_query_data(
         return batch
     finally:
         await async_client.aclose()
-    if data.status_code != 200 and data.status_code != 201:
+    if data.status_code not in [200, 201]:
         # print(data.content.decode(), file=stderr)
         batch.status = "FAILED"
         batch.message = (
@@ -316,7 +316,7 @@ def create_ingest_job(
 
     body = {"operation": operation, "object": object_name}
     if operation == "upsert":
-        if external_id_field_name is None or external_id_field_name == "":
+        if external_id_field_name is None or not external_id_field_name:
             raise RuntimeError(
                 "external Id field name must be provided when performing upsert."
             )
@@ -326,7 +326,7 @@ def create_ingest_job(
         f"{query_path}",
         json=body,
     )
-    if data.status_code != 200 and data.status_code != 201:
+    if data.status_code not in [200, 201]:
         print(data.content.decode(), file=stderr)
     return data.json()
 
@@ -353,7 +353,7 @@ def load_ingest_job_data(
 
     with open(file_path, "r") as file_in:
         data = client.put(f"{query_path}/batches", content=file_in.read(), timeout=None)
-        if data.status_code != 200 and data.status_code != 201:
+        if data.status_code not in [200, 201]:
             message = data.content.decode()
 
         else:
@@ -443,5 +443,3 @@ def ingest_job_data_batches(
     return ingest_job_results
 
 
-if __name__ == "__main__":
-    pass

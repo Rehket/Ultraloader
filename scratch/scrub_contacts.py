@@ -28,7 +28,9 @@ if response.status_code != 200:
 done = response.json().get("done")
 record_list: List[dict] = []
 for contact in response.json().get("records"):
-    contact["Email"] = ''.join(random.choice(letters) for i in range(15)) + "@yopmail.com"
+    contact["Email"] = (
+        ''.join(random.choice(letters) for _ in range(15)) + "@yopmail.com"
+    )
     record_list.append(contact)
 
 next_url = response.json().get("nextRecordsUrl")
@@ -36,7 +38,9 @@ next_url = response.json().get("nextRecordsUrl")
 while not done:
     next_response = client.get(url=next_url)
     for contact in next_response.json().get("records"):
-        contact["Email"] = ''.join(random.choice(letters) for i in range(15)) + "@yopmail.com"
+        contact["Email"] = (
+            ''.join(random.choice(letters) for _ in range(15)) + "@yopmail.com"
+        )
         record_list.append(contact)
     done = next_response.json().get("done")
     next_url = next_response.json().get("nextRecordsUrl")

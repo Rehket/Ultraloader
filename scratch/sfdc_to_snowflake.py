@@ -26,8 +26,7 @@ def get_snowflake_columns(
         )
         if cs.rowcount > 0:
             # logger.info(f"There are {cs.rowcount} columns in Snowflake for 'SFDC_{self.query_object}_{table_postfix}'")
-            for column_name in cs:
-                snowflake_column_names.append(column_name[0].upper())
+            snowflake_column_names.extend(column_name[0].upper() for column_name in cs)
         else:
             print(
                 f"No columns returned for '{table_prefix.upper()}{sfdc_object_name.upper()}{table_postfix.upper()}' on  schema '{snowflake_schema.upper()}'",

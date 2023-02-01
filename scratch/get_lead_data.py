@@ -25,9 +25,8 @@ person = Person("en")
 company = Finance("en")
 addr = Address("en")
 schema = Schema(schema=user_description)
-data = []
-for i in range(0, 900000):
-    data.append({
+data = [
+    {
         'FirstName': person.first_name(),
         'LastName': person.last_name(),
         'Email': person.email(),
@@ -36,13 +35,11 @@ for i in range(0, 900000):
         'City': addr.city(),
         'State': addr.state(abbr=True),
         'PostalCode': addr.zip_code(),
-        'Phone': person.telephone(mask='###-###-###')
-
-
-    })
-
-
-print(data[0:1])
+        'Phone': person.telephone(mask='###-###-###'),
+    }
+    for _ in range(900000)
+]
+print(data[:1])
 
 with open("data/LeadsOut.csv", "w", newline='') as leads_out:
     writer = DictWriter(leads_out, list(data[0].keys()), lineterminator='\n')

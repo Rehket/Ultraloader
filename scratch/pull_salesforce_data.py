@@ -45,8 +45,7 @@ def create_query_job(query: str, version: str):
         headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
         json=body,
     )
-    if data.status_code != 200 or data.status_code != 201:
-        print(data.content.decode(), file=stderr)
+    print(data.content.decode(), file=stderr)
     return data.json()
 
 
@@ -61,8 +60,7 @@ def get_query_data(job_id: str, locator: int, max_records: int, version: str):
             "locator": base64.b64encode(str(locator).encode()).decode(),
         },
     )
-    if data.status_code != 200 or data.status_code != 201:
-        print(data.content.decode(), file=stderr)
+    print(data.content.decode(), file=stderr)
 
     return data.content.decode()
 
@@ -82,8 +80,7 @@ async def a_get_query_data(
                 "locator": base64.b64encode(str(batch.batch_start).encode()).decode(),
             },
         )
-    if data.status_code != 200 or data.status_code != 201:
-        print(data.content.decode(), file=stderr)
+    print(data.content.decode(), file=stderr)
 
     salesforce_domain_path = urlparse(url=url).netloc.split(".")[0]
     data_directory = Path(data_directory, salesforce_domain_path)

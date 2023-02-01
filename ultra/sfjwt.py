@@ -49,20 +49,19 @@ def jwt_login(
 ) -> Tuple[str, str]:
     client = Client() if client is None else client
 
-    if environment:
-        if environment.lower() == "sandbox":
-            client.base_url = "https://test.salesforce.com"
-        elif environment.lower() == "production":
-            client.base_url = "https://login.salesforce.com"
-        else:
-            raise EnvironmentError(
-                f"SFDC_SANDBOX_ENVIRONMENT must be sandbox or production, got {environment}"
-            )
-    else:
+    if not environment:
         raise EnvironmentError(
-            f"SFDC_SANDBOX_ENVIRONMENT must be sandbox or production"
+            "SFDC_SANDBOX_ENVIRONMENT must be sandbox or production"
         )
 
+    if environment.lower() == "sandbox":
+        client.base_url = "https://test.salesforce.com"
+    elif environment.lower() == "production":
+        client.base_url = "https://login.salesforce.com"
+    else:
+        raise EnvironmentError(
+            f"SFDC_SANDBOX_ENVIRONMENT must be sandbox or production, got {environment}"
+        )
     jwt_payload = jwt.encode(
         {
             "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=30),
@@ -89,7 +88,7 @@ def jwt_login(
         },
     )
     body = result.json()
-    if result.status_code != 201 and result.status_code != 200:
+    if result.status_code not in [201, 200]:
         print(result.status_code)
         raise RuntimeError(
             f"Authentication Failed: <error: {body['error']}, description: {body['error_description']}>"
@@ -152,5 +151,5 @@ def load_credentials(
 
     else:
         raise RuntimeError(
-            f"Only a credential file or a set of raw credentials may be passed to the load_credentials method. "
+            "Only a credential file or a set of raw credentials may be passed to the load_credentials method. "
         )

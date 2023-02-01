@@ -51,7 +51,6 @@ def _get_or_create_secret():
     Reads or generates the secret used to save/load credentials
     :return:
     """
-    FILE_ATTRIBUTE_HIDDEN = 0x02
     ultra_path = pathlib.Path(pathlib.Path.home(), ".ultra")
     ultra_path.mkdir(exist_ok=True)
     key_path = pathlib.Path(ultra_path, ".ultra.key")
@@ -65,6 +64,7 @@ def _get_or_create_secret():
             key_file.write(key_data)
 
         if os.name == "nt":
+            FILE_ATTRIBUTE_HIDDEN = 0x02
             ret = ctypes.windll.kernel32.SetFileAttributesW(
                 key_path, FILE_ATTRIBUTE_HIDDEN
             )

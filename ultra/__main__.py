@@ -116,7 +116,7 @@ def login(
                 )
             )
 
-        print(f"Credentials Saved! You're all set.", file=sys.stdout)
+        print("Credentials Saved! You're all set.", file=sys.stdout)
 
 
 # noinspection GrazieInspection
