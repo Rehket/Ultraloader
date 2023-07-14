@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "ultra"
-version = "0.2.15"
+version = "0.3.1"
 description = ""
 authors = ["Rehket <aalbright425@gmail.com>"]
 license = "LGPL-3.0-or-later"
 
 [tool.poetry.dependencies]
-python = "^3.7.2"
+python = "^3.9"
 httpx = "^0.21.0"
 pydantic = "^1.8.2"
 PyJWT = {extras = ["crypto"], version = "^2.3.0"}
