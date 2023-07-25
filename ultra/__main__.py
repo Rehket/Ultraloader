@@ -21,12 +21,12 @@ app.add_typer(ingest_app, name="ingest")
 
 @app.command()
 def login(
-    username: str = None,
-    client_id: str = None,
-    environment: str = None,
+    username: str = typer.Option(str, help="The username to authenticate as."),
+    client_id: str = typer.Option(str, help="The client id associated with the connected app the user is authenticating through"),
+    environment: str = typer.Option(str, help="The environment to authenticate against. Must be sandbox or production."),
     private_key: str = typer.Option(
         None,
-        help="The path to the private key file. If None, the environment variable will be checked instead.",
+        help="The path to the private_ultraloader_org key file. If None, the environment variable will be checked instead.",
     ),
     json_credential_file: str = typer.Option(
         None,
@@ -47,8 +47,8 @@ def login(
     :param client_id: The consumer_id is the client_id of the app you are using to connect with SalesForce.
         The consumer key is like the username for the connected app.
 
-    :param private_key: The path to the private key. The private_key is the private certificate used to sign the
-        requests for an auth token. It is imperative to keep the key secure. When using a private key in an enabled app,
+    :param private_key: The path to the private_ultraloader_org key. The private_key is the private_ultraloader_org certificate used to sign the
+        requests for an auth token. It is imperative to keep the key secure. When using a private_ultraloader_org key in an enabled app,
         more than just one user can be comprised in the event the cert is stolen.
 
     :param environment: The environment determines whether to use SalesForce's test or production authentication

@@ -27,7 +27,7 @@ def _load_private_key(path_or_buffer: Optional[str] = None) -> str:
     if path_or_buffer is not None:
         if not pathlib.Path(path_or_buffer).exists():
             raise FileNotFoundError(
-                "The private key could not be found at the provided path."
+                "The private_ultraloader_org key could not be found at the provided path."
             )
         with open(path_or_buffer) as key_in:
             return key_in.read()
@@ -35,7 +35,7 @@ def _load_private_key(path_or_buffer: Optional[str] = None) -> str:
         private_key = environ.get("SFDC_PRIVATE_KEY", None)
         if private_key is None:
             raise EnvironmentError(
-                "No private key is configured. For more help with this error, reference the login command."
+                "No private_ultraloader_org key is configured. For more help with this error, reference the login command."
             )
         return private_key
 
@@ -114,7 +114,7 @@ def load_credentials(
 
     :param consumer_id: The consumer_id of the connected app to connect with.
 
-    :param private_key: The path to private key used to sign the auth request. If None, the Environment
+    :param private_key: The path to private_ultraloader_org key used to sign the auth request. If None, the Environment
         variable is checked instead. If it is not found at any of those locations, an exception is raised.
 
     :param environment: Whether the environment is a sandbox or production.
