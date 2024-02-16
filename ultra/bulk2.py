@@ -19,6 +19,7 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
     retry_if_exception_type,
+    Retrying
 )
 
 from ultra.sfjwt import CredentialModel, load_credentials
@@ -43,6 +44,7 @@ class Batch(BaseModel):
     object: str
     file_name: Optional[str]
     locator_id: Optional[str] = None
+    next_locator_id: Optional[str] = None
     download_path: str = "./data"
     status: str = "NEW"
     message: Optional[str] = None
@@ -150,12 +152,10 @@ def get_query_locator(
 
 
 def get_query_data(
-    job_id: str,
-    locator: int,
-    max_records: int,
-    version: str,
+    batch: Batch,
     client: httpx.Client = None,
     credentials: CredentialModel = None,
+    max_attempts: int = int(os.getenv("SFDC_MAX_DOWNLOAD_ATTEMPTS", 20)),
 ):
     if credentials is None:
         credentials = load_credentials()
@@ -167,20 +167,56 @@ def get_query_data(
                 "Accept": "application/json",
             },
         )
-    query_path = f"/services/data/v{version}/jobs/query/{job_id}/results"
+    query_path = f"/services/data/v{batch.api_version}/jobs/query/{batch.job_id}/results"
+
+    
+    try:
+        for attempt in Retrying(
+                retry=retry_if_exception_type(httpx.ReadTimeout),
+                stop=stop_after_attempt(max_attempts),
+                wait=wait_exponential(multiplier=1, min=4, max=60),
+        ):
+            with attempt:
+                params = {
+                    "maxRecords": batch.batch_size
+                }
+                if batch.locator_id:
+                    params["locator"] = batch.locator_id
+
+                batch.attempt_count = attempt.retry_state.attempt_number
+                data = client.get(
+                    f"{query_path}",
+                    params=params,
+                )
+    except RetryError as e:
+        batch.status = "FAILED"
+        batch.message = f"Error occurred while downloading job data after : {str(e)}"
+        client.close()
+        return batch
 
 
-    data = client.get(
-        f"{query_path}",
-        params={
-            "maxRecords": max_records,
-            "locator": base64.b64encode(str(locator).encode()).decode(),
-        },
-    )
+
     if data.status_code != 200 and data.status_code != 201:
-        print(data.content.decode(), file=stderr)
+        batch.status = "FAILED"
+        batch.message = (
+            f"Error occurred while downloading job data: {data.content.decode()}"
+        )
+        return batch
 
-    return data.content.decode()
+    batch.next_locator_id = data.headers.get("Sforce-Locator") + (len(data.headers.get("Sforce-Locator")) % 4) * "="
+    print(batch.next_locator_id)
+    data_directory = Path(batch.download_path)
+    data_directory.mkdir(exist_ok=True)
+    file_path = Path(data_directory, f"{batch.job_id}_{batch.batch_start:012d}.csv")
+
+    with open(file_path, mode="w") as file_out:
+        file_out.write(data.content.decode())
+    batch.status = "COMPLETE"
+    batch.message = f"{file_path} download complete"
+    batch.downloaded_file_path = file_path
+    batch.file_name = f"{batch.job_id}_{batch.batch_start:012d}.csv"
+
+    return batch
 
 
 async def a_get_query_data(
@@ -314,6 +350,60 @@ def download_query_data(
         indent=2
     )
 
+def download_query_data_serial(
+    job_id: str,
+    client: httpx.Client = None,
+    version: str = "53.0",
+    download_path: str = "./data",
+    batch_size: int = 10000,
+):
+    job_data = get_query_job(job_id=job_id, version=version)
+    record_count = job_data.get("numberRecordsProcessed")
+    credentials = load_credentials()
+    if client is None:
+        client = httpx.Client(
+            base_url=credentials.instance_url,
+            headers={
+                "Authorization": f"Bearer {credentials.token}",
+                "Accept": "application/json",
+            },
+        )
+
+    if record_count == 0:
+        print("Record Count is 0, No results to process", file=stderr)
+        exit()
+
+    if batch_size is None or batch_size == 0:
+        batch_size = ceil(job_data.get("numberRecordsProcessed") / cpu_count())
+
+
+    # Pill one record to get offset id
+    query_locator = get_query_locator(job_id=job_id, version=version, client=client, credentials=credentials)
+
+    lots = [
+        Batch(
+            batch_start=i,
+            batch_size=batch_size,
+            job_id=job_id,
+            api_version=version,
+            locator_id=query_locator,
+            base_path=credentials.instance_url,
+            object=job_data.get("object"),
+            download_path=download_path,
+        )
+        for i in range(0, job_data.get("numberRecordsProcessed"), batch_size)
+    ]
+
+
+    locator = None
+    for batch in lots:
+        batch.locator_id = locator
+        batch_result = get_query_data(batch, client=client, credentials=credentials)
+        locator = batch_result.next_locator_id
+        print(batch_result.json(indent=2))
+        if batch_result.status == "FAILED":
+            print(f"Job failed: {batch_result.message}", file=stderr)
+            exit()
 
 def get_job(
     job_id: str,

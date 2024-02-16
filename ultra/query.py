@@ -62,18 +62,30 @@ def download_data(
         False,
         help="Should the download be simulated rather than downloaded.",
     ),
+    serial: bool = typer.Option(
+        False,
+        help="Should the job data be downloaded serially versus parallel.",
+    ),
 ):
 
-    print(
-        bulk2.download_query_data(
+    if not serial:
+        print(
+            bulk2.download_query_data(
+                job_id=job_id,
+                version=version,
+                download_path=download_path,
+                batch_size=batch_size,
+                dry_run=download_dry_run,
+            ),
+            file=sys.stdout,
+        )
+    else:
+        bulk2.download_query_data_serial(
             job_id=job_id,
             version=version,
             download_path=download_path,
-            batch_size=batch_size,
-            dry_run=download_dry_run,
-        ),
-        file=sys.stdout,
-    )
+            batch_size=batch_size
+        )
 
 
 @query_app.command()
