@@ -137,7 +137,7 @@ def get_query_data(
         f"{query_path}",
         params={
             "maxRecords": max_records,
-            "locator": base64.b64encode(str(locator).encode()).decode(),
+            "locator": locator,
         },
     )
     if data.status_code != 200 and data.status_code != 201:
