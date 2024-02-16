@@ -2,7 +2,7 @@ import os
 import sys
 
 import httpx
-from sys import stderr
+from sys import stderr, stdout
 from multiprocessing import cpu_count
 from math import ceil
 import base64
@@ -42,6 +42,7 @@ class Batch(BaseModel):
     api_version: str
     object: str
     file_name: Optional[str]
+    locator_id: Optional[str] = None
     download_path: str = "./data"
     status: str = "NEW"
     message: Optional[str] = None
@@ -113,6 +114,41 @@ def create_query_job(
     return data.json()
 
 
+def get_query_locator(
+    job_id: str,
+    version: str,
+    client: httpx.Client = None,
+    credentials: CredentialModel = None,
+):
+    if credentials is None:
+        credentials = load_credentials()
+    if client is None:
+        client = httpx.Client(
+            base_url=credentials.instance_url,
+            headers={
+                "Authorization": f"Bearer {credentials.token}",
+                "Accept": "application/json",
+            },
+        )
+    query_path = f"/services/data/v{version}/jobs/query/{job_id}/results"
+
+
+    data = client.get(
+        f"{query_path}",
+        params={
+            "maxRecords": 1
+        },
+    )
+    if data.status_code != 200 and data.status_code != 201:
+        print(data.content.decode(), file=stderr)
+
+    padding = (len(data.headers.get("Sforce-Locator")) % 4) * "="
+
+    b64_locator = base64.b64decode( str(data.headers.get("Sforce-Locator") + padding).encode()).decode()
+
+    return b64_locator.split(":")[1]
+
+
 def get_query_data(
     job_id: str,
     locator: int,
@@ -132,6 +168,7 @@ def get_query_data(
             },
         )
     query_path = f"/services/data/v{version}/jobs/query/{job_id}/results"
+
 
     data = client.get(
         f"{query_path}",
@@ -183,7 +220,7 @@ async def a_get_query_data(
                     params={
                         "maxRecords": batch.batch_size,
                         "locator": base64.b64encode(
-                            str(batch.batch_start).encode()
+                            f"{str(batch.batch_start)}:{batch.locator_id}:0".encode()
                         ).decode(),
                     },
                 )
@@ -227,6 +264,7 @@ async def pull_batches(lots: List[Batch]) -> List[Batch]:
 
 def download_query_data(
     job_id: str,
+    client: httpx.Client = None,
     version: str = "53.0",
     download_path: str = "./data",
     batch_size: int = 10000,
@@ -235,6 +273,15 @@ def download_query_data(
     job_data = get_query_job(job_id=job_id, version=version)
     record_count = job_data.get("numberRecordsProcessed")
     credentials = load_credentials()
+    if client is None:
+        client = httpx.Client(
+            base_url=credentials.instance_url,
+            headers={
+                "Authorization": f"Bearer {credentials.token}",
+                "Accept": "application/json",
+            },
+        )
+
     if record_count == 0:
         print("Record Count is 0, No results to process", file=stderr)
         exit()
@@ -242,12 +289,17 @@ def download_query_data(
     if batch_size is None or batch_size == 0:
         batch_size = ceil(job_data.get("numberRecordsProcessed") / cpu_count())
 
+
+    # Pill one record to get offset id
+    query_locator = get_query_locator(job_id=job_id, version=version, client=client, credentials=credentials)
+
     lots = [
         Batch(
             batch_start=i,
             batch_size=batch_size,
             job_id=job_id,
             api_version=version,
+            locator_id=query_locator,
             base_path=credentials.instance_url,
             object=job_data.get("object"),
             download_path=download_path,
