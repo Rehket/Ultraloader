@@ -204,7 +204,7 @@ def get_query_data(
         return batch
 
     batch.next_locator_id = data.headers.get("Sforce-Locator") + (len(data.headers.get("Sforce-Locator")) % 4) * "="
-    print(batch.next_locator_id)
+
     data_directory = Path(batch.download_path)
     data_directory.mkdir(exist_ok=True)
     file_path = Path(data_directory, f"{batch.job_id}_{batch.batch_start:012d}.csv")
@@ -394,16 +394,20 @@ def download_query_data_serial(
         for i in range(0, job_data.get("numberRecordsProcessed"), batch_size)
     ]
 
+    job_completion = CompletedJob(id=job_id, batches=[])
 
     locator = None
     for batch in lots:
         batch.locator_id = locator
         batch_result = get_query_data(batch, client=client, credentials=credentials)
         locator = batch_result.next_locator_id
-        print(batch_result.json(indent=2))
+
+        job_completion.batches.append(batch_result)
         if batch_result.status == "FAILED":
             print(f"Job failed: {batch_result.message}", file=stderr)
             exit()
+
+    print(job_completion.json(indent=2), file=stdout)
 
 def get_job(
     job_id: str,
