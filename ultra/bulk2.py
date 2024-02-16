@@ -203,7 +203,7 @@ def get_query_data(
         )
         return batch
 
-    batch.next_locator_id = data.headers.get("Sforce-Locator") + (len(data.headers.get("Sforce-Locator")) % 4) * "="
+    batch.next_locator_id = data.headers.get("Sforce-Locator")
 
     data_directory = Path(batch.download_path)
     data_directory.mkdir(exist_ok=True)
@@ -377,8 +377,8 @@ def download_query_data_serial(
         batch_size = ceil(job_data.get("numberRecordsProcessed") / cpu_count())
 
 
-    # Pill one record to get offset id
-    query_locator = get_query_locator(job_id=job_id, version=version, client=client, credentials=credentials)
+    # # Pill one record to get offset id
+    # query_locator = get_query_locator(job_id=job_id, version=version, client=client, credentials=credentials)
 
     lots = [
         Batch(
@@ -386,7 +386,7 @@ def download_query_data_serial(
             batch_size=batch_size,
             job_id=job_id,
             api_version=version,
-            locator_id=query_locator,
+            locator_id=None,
             base_path=credentials.instance_url,
             object=job_data.get("object"),
             download_path=download_path,
